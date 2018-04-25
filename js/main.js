@@ -103,6 +103,11 @@ $(document).ready(function() {
     var cun = parseInt($('#cunning').val());
     var cur = parseInt($('#curious').val());
     var z = parseInt($('#zone').val());
+    if (z > 700) {
+      alert('Yeah right!');
+      z = 301;
+    }
+
     var xp = 0;
     var xparr = [];
     $('#result tbody').html('');
@@ -119,9 +124,17 @@ $(document).ready(function() {
     $('#xpperrun').text(prettify(sum.toFixed(0)));
     var htmlarr = xparr.map(function(row, index) {
       var i = parseInt(index)+301;
-      return '<tr><td>' + i + '</td><td>' + prettify(row) + '</td></tr>';
+      if (index > (xparr.length - 10)) {
+        return '<tr><td>' + i + '</td><td>' + prettify(row) + '</td></tr>';
+      } else {
+        return '<tr class="hidden"><td>' + i + '</td><td>' + prettify(row) + '</td></tr>';
+      }
     });
+    var showall = '<a href="" id="showall">Show all</a>';
     $('#result tbody').html(htmlarr.reverse().join());
+    if (!$('#result').find('#showall').length) {
+      $('#result table').append(showall);
+    }
   }
 
   $('#calculator').on('submit', function(e) {
@@ -133,4 +146,9 @@ $(document).ready(function() {
     drawXP();
   });
 
+  $('#result').on('click', '#showall', function(e) {
+    e.preventDefault();
+    $('.hidden').removeClass('hidden');
+    $('#showall').hide();
+  });
 });

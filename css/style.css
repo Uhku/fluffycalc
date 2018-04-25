@@ -41,3 +41,7 @@ label {
   display: inline;
   float: right;
 }
+
+.hidden {
+  display: none;
+}
