@@ -1,0 +1,33 @@
+* {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Roboto","Droid Sans", "Arial", sans-serif;
+  margin: 1em;
+}
+
+h1 {
+  margin-bottom: 1em;
+}
+
+label {
+  display: block;
+}
+
+#content {
+  width: 90%;
+  margin: 0 auto;
+}
+
+#calculator {
+  width: 40%;
+  float: left;
+}
+
+#result {
+  width: 40%;
+  float: left;
+  border: 1px solid black;
+}
