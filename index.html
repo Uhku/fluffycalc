@@ -13,24 +13,36 @@
       <header>
         <h1>Fluffy XP Calculator for Trimps</h1>
       </header>
-      <form id="calculator">
-        <label for="perks">Paste perks/save here</label>
-        <textarea id="perks" rows="10" cols="50"></textarea>
-        <label for="curious">Curious</label>
-        <input type="text" id="curious" name="curious">
-        <label for="cunning">Cunning</label>
-        <input type="text" id="cunning" name="cunning">
-        <label for="zone">Highest zone to show</label>
-        <input type="text" id="zone" name="zone">
-        <input type="submit" value="Calculate!">
-      </form>
-      <div id="result">
-        <table border="0">
-          <thead>
-            <tr><th>Zone</th><th>XP</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
+      <div id="left">
+        <form id="calculator">
+          <label for="perks">Paste perks/save here</label>
+          <textarea id="perks" rows="10" cols="50"></textarea>
+          <label for="curious">Curious</label>
+          <input type="text" id="curious" name="curious">
+          <label for="cunning">Cunning</label>
+          <input type="text" id="cunning" name="cunning">
+          <label for="zone">Highest zone to show</label>
+          <input type="text" id="zone" name="zone">
+          <input type="submit" value="Calculate!">
+        </form>
+      </div>
+      <div id="right">
+        <div id="summary">
+          Current Level<span id="level"></span><br>
+          Current XP<span id="curxp"></span><br>
+          XP per run<span id="xpperrun"></span><br>
+          Runs to level up<span id="runs"></span><br>
+        </div>
+        <div id="result">
+          <table border="0">
+            <thead>
+              <tr><th>Zone</th><th>XP</th></tr>
+            </thead>
+            <tbody>
+              <tr><td></td><td></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   </body>

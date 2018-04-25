@@ -26,8 +26,18 @@ label {
   float: left;
 }
 
-#result {
+#right {
   width: 40%;
   float: left;
+}
+
+#summary {
   border: 1px solid black;
+  width: 70%;
+  padding: .5em;
+}
+
+#summary > span {
+  display: inline;
+  float: right;
 }
