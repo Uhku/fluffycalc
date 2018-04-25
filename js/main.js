@@ -165,6 +165,5 @@ $(document).ready(function() {
   $('#result').on('click', '#showall', function(e) {
     e.preventDefault();
     $('.hidden').removeClass('hidden');
-    $('#showall').hide();
   });
 });
