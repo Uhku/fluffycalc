@@ -92,11 +92,19 @@ $(document).ready(function() {
     return levels;
   }
 
-  function calculate(levels) {
-    var curious = levels.Curious || 0;
-    var cunning = levels.Cunning || 0;
-    $('#curious').val(curious);
-    $('#cunning').val(cunning);
+  function calculate(levels, reset) {
+    if (!$('#curious').val().length) {
+      var curious = levels.Curious || 0;
+      $('#curious').val(curious);
+    }
+    if (!$('#cunning').val().length) {
+      var cunning = levels.Cunning || 0;
+      $('#cunning').val(cunning);
+    }
+    if (reset) {
+      $('#cunning').val(levels.Cunning);
+      $('#curious').val(levels.Curious);
+    }
   }
 
   function drawXP() {
@@ -136,6 +144,14 @@ $(document).ready(function() {
       $('#result table').append(showall);
     }
   }
+
+  $('#reimport').on('click', function() {
+    if ($('#perks').val()) {
+      var perks = importPerks($('#perks').val());
+      calculate(perks, true);
+      $('#calculator').trigger('submit');
+    }
+  });
 
   $('#calculator').on('submit', function(e) {
     e.preventDefault();
