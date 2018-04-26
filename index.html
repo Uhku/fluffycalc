@@ -21,8 +21,10 @@
           <input type="text" id="curious" name="curious">
           <label for="cunning">Cunning</label>
           <input type="text" id="cunning" name="cunning">
-          <label for="zone">Highest zone to show</label>
+          <label for="zone">Target zone</label>
           <input type="text" id="zone" name="zone" value="301">
+          <label for="daily">Daily modifier</label>
+          <input type="text" id="daily" name="daily" value="1">
           <input type="submit" value="Calculate!">
           <input type="button" value="Re-import values from save" id="reimport">
         </form>
@@ -32,7 +34,9 @@
           Current Level<span id="level"></span><br>
           Current XP<span id="curxp"></span><br>
           XP per run<span id="xpperrun"></span><br>
-          Runs to level up<span id="runs"></span><br>
+          Runs to level up<span id="runs"></span><br><br>
+          Curious +1<span id="curplus"></span><br>
+          Cunning +1<span id="cunplus"></span><br>
         </div>
         <div id="result">
           <table border="0">

@@ -111,6 +111,7 @@ $(document).ready(function() {
     var cun = parseInt($('#cunning').val());
     var cur = parseInt($('#curious').val());
     var z = parseInt($('#zone').val());
+    var daily = parseFloat($('#daily').val()) || 1;
     if (z > 700) {
       alert('Yeah right!');
       z = 301;
@@ -120,16 +121,18 @@ $(document).ready(function() {
     var xparr = [];
     $('#result tbody').html('');
     for (i = 301; i <= z; i++) {
-      xp = (50 + (cur * 30)) * Math.pow(1.015, (i - 300)) * (1 + (cun * 0.25));
+      xp = xpPerZone(cur, cun, i, daily);
       xparr.push(xp);
     }
-    var sum = xparr.reduce(function (a, c) {
-      return a + c;
-    }, 0);
     var xptolevel = Math.floor(fluffyxp[2]) - Math.floor(fluffyxp[1]);
+    var sum = xpPerRun(cur, cun, z, daily);
     var runs = Math.ceil(xptolevel/sum);
     $('#runs').text(runs);
     $('#xpperrun').text(prettify(sum.toFixed(0)));
+    var curplus = xpPerRun(cur+1, cun, z, daily).toFixed(1);
+    var cunplus = xpPerRun(cur, cun+1, z, daily).toFixed(1);
+    $('#curplus').text(prettify(curplus));
+    $('#cunplus').text(prettify(cunplus));
     var htmlarr = xparr.map(function(row, index) {
       var i = parseInt(index)+301;
       if (index > (xparr.length - 10)) {
@@ -143,6 +146,23 @@ $(document).ready(function() {
     if (!$('#result').find('#showall').length) {
       $('#result table').append(showall);
     }
+  }
+
+  function xpPerRun(curious, cunning, zone, daily) {
+    var run = [];
+    for (i = 301; i <= zone; i++) {
+      run.push(xpPerZone(curious, cunning, i, daily));
+    }
+    return run.reduce(function (a, c) {
+        return a + c;
+    }, 0);
+  }
+
+  function xpPerZone(curious, cunning, zone, daily) {
+    if (!daily) {
+      daily = 1;
+    }
+    return (50 + (curious * 30)) * Math.pow(1.015, (zone - 300)) * (1 + (cunning * 0.25)) * daily;
   }
 
   $('#reimport').on('click', function() {
