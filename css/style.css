@@ -42,10 +42,27 @@ label {
   float: right;
 }
 
+.amt {
+  float: left !important;
+}
+
 .hidden {
   display: none;
 }
 
 .bold {
   font-weight: bold;
+}
+
+table {
+  margin-top: 1em;
+}
+
+table, tr, td, th {
+  border: 1px solid black;
+  border-collapse: collapse;
+}
+
+td {
+  padding: 3px;
 }

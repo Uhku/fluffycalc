@@ -3,6 +3,14 @@ $(document).ready(function() {
   var growth = 4;
   var prestigeExpModifier = 5;
   var fluffyxp = [];
+  var perkConfig = {
+    Cunning: {
+      priceBase: 1e11
+    },
+    Curious: {
+      priceBase: 1e14
+    },
+  };
 
   function prettify(number) {
     if (number >= 1000 && number < 10000) {
@@ -83,7 +91,7 @@ $(document).ready(function() {
       fluffyxp = calculateXp(levels);
       $('#level').text(fluffyxp[0]);
       $('#curxp').text(prettify(fluffyxp[1]) + ' / ' + prettify(fluffyxp[2]));
-
+      calcStats(levels);
       return perks;
     }
     else {
@@ -186,4 +194,71 @@ $(document).ready(function() {
     e.preventDefault();
     $('.hidden').removeClass('hidden');
   });
+
+  function getCost(what, forceAmt){
+    var toCheck = perkConfig[what];
+    var tempLevel;
+    var nextLevel;
+    var toAmt;
+    tempLevel = 0;
+    nextLevel = tempLevel + forceAmt;
+    var amt = 0;
+    var growth = 1.3;
+    for (var x = 0; x < forceAmt; x++){
+      amt = Math.ceil(((tempLevel + x) / 2) + toCheck.priceBase * Math.pow(growth, tempLevel + x));
+    }
+    return amt;
+  }
+
+  function calcStats(save) {
+    var spendable = save.resources.helium.owned;
+    var curiousPoints = save.portal.Curious.level;
+    var cunningPoints = save.portal.Cunning.level;
+    var comboPoints = {
+      cunning: cunningPoints,
+      curious: curiousPoints
+    };
+
+    var cunningHe = spendable;
+    var cunningCost = getCost('Cunning', cunningPoints);
+    while (cunningHe > cunningCost) {
+      cunningPoints++;
+      cunningCost = getCost('Cunning', cunningPoints);
+      cunningHe -= cunningCost;
+    }
+
+    var curiousHe = spendable;
+    var curiousCost = getCost('Curious', curiousPoints);
+    while (curiousHe > curiousCost) {
+      curiousPoints++;
+      curiousCost = getCost('Curious', curiousPoints);
+      curiousHe -= curiousCost;
+    }
+
+    var comboHe = curiousHe;
+    comboPoints.curious = curiousPoints;
+    while (comboHe > cunningCost) {
+      comboPoints.cunning++;
+      cunningCost = getCost('Cunning', comboPoints.cunning);
+      comboHe -= cunningCost;
+    }
+    var zone = $('#zone').val();
+    if (!zone) {
+      zone = 301;
+    }
+    var curRun = xpPerRun(curiousPoints, save.portal.Cunning.level, zone);
+    var cunRun = xpPerRun(save.portal.Curious.level, cunningPoints, zone);
+    var comboRun = xpPerRun(comboPoints.curious, comboPoints.cunning, zone, $('#daily').val());
+
+    $('#curplus').text(prettify(curRun) + ' per run');
+    $('#curamt').text('Curious only: ' + curiousPoints);
+
+    $('#cunplus').text(prettify(cunRun) + ' per run');
+    $('#cunamt').text('Cunning only: ' + cunningPoints);
+
+    $('#complus').text(prettify(comboRun));
+    $('#comcuramt').text('Curious: ' + comboPoints.curious);
+    $('#comcunamt').html('&nbsp;Cunning: ' + comboPoints.cunning);
+  }
+
 });
