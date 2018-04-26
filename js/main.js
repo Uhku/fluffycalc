@@ -82,6 +82,10 @@ $(document).ready(function() {
       return;
     }
     if (levels.global) {
+      if (!levels.global.Capable) {
+        alert('You need to have fluffy to use this calculator');
+        return;
+      }
       var perksetup = levels.portal;
       var keys = Object.keys(perksetup);
       var perks = {};
