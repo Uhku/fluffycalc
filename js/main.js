@@ -141,10 +141,6 @@ $(document).ready(function() {
     var runs = Math.ceil(xptolevel/sum);
     $('#runs').text(runs);
     $('#xpperrun').text(prettify(sum.toFixed(0)));
-    var curplus = xpPerRun(cur+1, cun, z, daily).toFixed(1);
-    var cunplus = xpPerRun(cur, cun+1, z, daily).toFixed(1);
-    $('#curplus').text(prettify(curplus));
-    $('#cunplus').text(prettify(cunplus));
     var htmlarr = xparr.map(function(row, index) {
       var i = parseInt(index)+301;
       if (index > (xparr.length - 10)) {
@@ -253,14 +249,15 @@ $(document).ready(function() {
     if (!zone) {
       zone = 301;
     }
-    var curRun = xpPerRun(curiousPoints, save.portal.Cunning.level, zone);
-    var cunRun = xpPerRun(save.portal.Curious.level, cunningPoints, zone);
-    var comboRun = xpPerRun(comboPoints.curious, comboPoints.cunning, zone, $('#daily').val());
+    var daily = $('#daily').val() || 1;
+    var curRun = xpPerRun(curiousPoints, save.portal.Cunning.level, zone, daily);
+    var cunRun = xpPerRun(save.portal.Curious.level, cunningPoints, zone, daily);
+    var comboRun = xpPerRun(comboPoints.curious, comboPoints.cunning, zone, daily);
 
-    $('#curplus').text(prettify(curRun) + ' per run');
+    $('#curplus').text(prettify(curRun));
     $('#curamt').text('Curious only: ' + curiousPoints);
 
-    $('#cunplus').text(prettify(cunRun) + ' per run');
+    $('#cunplus').text(prettify(cunRun));
     $('#cunamt').text('Cunning only: ' + cunningPoints);
 
     $('#complus').text(prettify(comboRun));
