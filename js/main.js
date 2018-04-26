@@ -214,7 +214,7 @@ $(document).ready(function() {
   }
 
   function calcStats(save) {
-    var spendable = save.resources.helium.owned;
+    var spendable = save.resources.helium.owned + save.global.heliumLeftover;
     var curiousPoints = save.portal.Curious.level;
     var cunningPoints = save.portal.Cunning.level;
     var comboPoints = {
