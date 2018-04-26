@@ -82,7 +82,7 @@ $(document).ready(function() {
       return;
     }
     if (levels.global) {
-      if (!levels.global.Capable) {
+      if (levels.portal.Capable.level == 0) {
         alert('You need to have fluffy to use this calculator');
         return;
       }
@@ -178,7 +178,7 @@ $(document).ready(function() {
   }
 
   $('#reimport').on('click', function() {
-    if ($('#perks').val()) {
+    if ($('#perks').val().length) {
       var perks = importPerks($('#perks').val());
       calculate(perks, true);
       $('#calculator').trigger('submit');
@@ -187,11 +187,14 @@ $(document).ready(function() {
 
   $('#calculator').on('submit', function(e) {
     e.preventDefault();
-    if ($('#perks').val()) {
-      var perks = importPerks($('#perks').val());
+    var perks = false;
+    if ($('#perks').val().length) {
+      perks = importPerks($('#perks').val());
       calculate(perks);
     }
-    drawXP();
+    if (perks) {
+      drawXP();
+    }
   });
 
   $('#result').on('click', '#showall', function(e) {
