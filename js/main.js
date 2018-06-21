@@ -96,7 +96,7 @@ $(document).ready(function() {
       $('#level').text(fluffyxp[0]);
       $('#curxp').text(prettify(fluffyxp[1]) + ' / ' + prettify(fluffyxp[2]));
       calcStats(levels);
-      return perks;
+      return [perks, levels];
     }
     else {
       alert('Import a full save to see more stats!');
@@ -104,7 +104,9 @@ $(document).ready(function() {
     return levels;
   }
 
-  function calculate(levels, reset) {
+  function calculate(save, reset) {
+    var levels = save[0];
+    var all = save[1];
     if (!$('#curious').val().length) {
       var curious = levels.Curious || 0;
       $('#curious').val(curious);
@@ -113,9 +115,14 @@ $(document).ready(function() {
       var cunning = levels.Cunning || 0;
       $('#cunning').val(cunning);
     }
+    if (!$('#staff').val().length) {
+      var staff = parseFloat(all.heirlooms.Staff.FluffyExp.currentBonus/100);
+      $('#staff').val(staff);
+    }
     if (reset) {
       $('#cunning').val(levels.Cunning);
       $('#curious').val(levels.Curious);
+      $('#staff').val(parseFloat(all.heirlooms.Staff.FluffyExp.currentBonus/100));
     }
   }
 
@@ -124,7 +131,8 @@ $(document).ready(function() {
     var cur = parseInt($('#curious').val());
     var z = parseInt($('#zone').val());
     var daily = parseFloat($('#daily').val()) || 1;
-    if (z > 700) {
+    var staff = parseFloat($('#staff').val()) || 1;
+    if (z > 800) {
       alert('Yeah right!');
       z = 301;
     }
@@ -133,11 +141,11 @@ $(document).ready(function() {
     var xparr = [];
     $('#result tbody').html('');
     for (i = 301; i <= z; i++) {
-      xp = xpPerZone(cur, cun, i, daily);
+      xp = xpPerZone(cur, cun, i, daily, staff);
       xparr.push(xp);
     }
     var xptolevel = Math.floor(fluffyxp[2]) - Math.floor(fluffyxp[1]);
-    var sum = xpPerRun(cur, cun, z, daily);
+    var sum = xpPerRun(cur, cun, z, daily, staff);
     var runs = Math.ceil(xptolevel/sum);
     $('#runs').text(runs);
     $('#xpperrun').text(prettify(sum.toFixed(0)));
@@ -156,21 +164,26 @@ $(document).ready(function() {
     }
   }
 
-  function xpPerRun(curious, cunning, zone, daily) {
+  function xpPerRun(curious, cunning, zone, daily, staff) {
     var run = [];
     for (i = 301; i <= zone; i++) {
-      run.push(xpPerZone(curious, cunning, i, daily));
+      run.push(xpPerZone(curious, cunning, i, daily, staff));
     }
     return run.reduce(function (a, c) {
         return a + c;
     }, 0);
   }
 
-  function xpPerZone(curious, cunning, zone, daily) {
+  function xpPerZone(curious, cunning, zone, daily, staff) {
     if (!daily) {
       daily = 1;
     }
-    return (50 + (curious * 30)) * Math.pow(1.015, (zone - 300)) * (1 + (cunning * 0.25)) * daily;
+    if (!staff) {
+      staff = 1;
+    } else {
+      staff = 1 + parseFloat(staff);
+    }
+    return (50 + (curious * 30)) * Math.pow(1.015, (zone - 300)) * (1 + (cunning * 0.25)) * daily * staff;
   }
 
   $('#reimport').on('click', function() {
@@ -250,9 +263,14 @@ $(document).ready(function() {
       zone = 301;
     }
     var daily = $('#daily').val() || 1;
-    var curRun = xpPerRun(curiousPoints, save.portal.Cunning.level, zone, daily);
-    var cunRun = xpPerRun(save.portal.Curious.level, cunningPoints, zone, daily);
-    var comboRun = xpPerRun(comboPoints.curious, comboPoints.cunning, zone, daily);
+    var staff = parseFloat($('#staff').val()) || 1;
+    if (save.heirlooms.Staff.FluffyExp.currentBonus) {
+      staff = (save.heirlooms.Staff.FluffyExp.currentBonus/100);
+    }
+
+    var curRun = xpPerRun(curiousPoints, save.portal.Cunning.level, zone, daily, staff);
+    var cunRun = xpPerRun(save.portal.Curious.level, cunningPoints, zone, daily, staff);
+    var comboRun = xpPerRun(comboPoints.curious, comboPoints.cunning, zone, daily, staff);
 
     $('#curplus').text(prettify(curRun));
     $('#curamt').text('Curious only: ' + curiousPoints);
