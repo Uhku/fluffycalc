@@ -95,6 +95,7 @@ $(document).ready(function() {
       fluffyxp = calculateXp(levels);
       $('#level').text(fluffyxp[0]);
       $('#curxp').text(prettify(fluffyxp[1]) + ' / ' + prettify(fluffyxp[2]));
+      $('#evolution').text(levels.global.fluffyPrestige);
       calcStats(levels);
       return [perks, levels];
     }
@@ -123,11 +124,16 @@ $(document).ready(function() {
       var classy = levels.Classy || 0;
       $('#classy').val(classy);
     }
+    if (all.talents.fluffyExp.purchased) {
+      $('#fluffocus').prop('checked', true);
+    }
+    var evo = all.global.fluffyPrestige;
     if (reset) {
       $('#cunning').val(levels.Cunning);
       $('#curious').val(levels.Curious);
       $('#classy').val(levels.Classy);
       $('#staff').val(parseFloat(all.heirlooms.Staff.FluffyExp.currentBonus/100));
+      $('#evolution').text(evo);
     }
   }
 
@@ -138,6 +144,7 @@ $(document).ready(function() {
     var classy = parseInt($('#classy').val());
     var daily = parseFloat($('#daily').val()) || 1;
     var staff = parseFloat($('#staff').val()) || 1;
+    var fluffocus = $('#fluffocus').prop('checked') ? parseFloat($('#evolution').text())/4 : 1;
     if (z > 800) {
       alert('Yeah right!');
       z = 301;
@@ -148,11 +155,11 @@ $(document).ready(function() {
     $('#result tbody').html('');
     var start = 301-(classy*2);
     for (i = start; i <= z; i++) {
-      xp = xpPerZone(cur, cun, i, daily, staff, classy);
+      xp = xpPerZone(cur, cun, i, daily, staff, classy, fluffocus);
       xparr.push(xp);
     }
     var xptolevel = Math.floor(fluffyxp[2]) - Math.floor(fluffyxp[1]);
-    var sum = xpPerRun(cur, cun, z, daily, staff, classy);
+    var sum = xpPerRun(cur, cun, z, daily, staff, classy, fluffocus);
     var runs = Math.ceil(xptolevel/sum);
     $('#runs').text(runs);
     $('#xpperrun').text(prettify(sum.toFixed(0)));
@@ -171,17 +178,17 @@ $(document).ready(function() {
     }
   }
 
-  function xpPerRun(curious, cunning, zone, daily, staff, classy) {
+  function xpPerRun(curious, cunning, zone, daily, staff, classy, fluffocus) {
     var run = [];
     for (i = classy; i <= zone; i++) {
-      run.push(xpPerZone(curious, cunning, i, daily, staff, classy));
+      run.push(xpPerZone(curious, cunning, i, daily, staff, classy, fluffocus));
     }
     return run.reduce(function (a, c) {
         return a + c;
     }, 0);
   }
 
-  function xpPerZone(curious, cunning, zone, daily, staff, classy) {
+  function xpPerZone(curious, cunning, zone, daily, staff, classy, fluffocus) {
     if (!daily) {
       daily = 1;
     }
@@ -196,7 +203,8 @@ $(document).ready(function() {
     } else {
       classy = classy*2;
     }
-    return (50 + (curious * 30)) * Math.pow(1.015, (zone - (300-classy))) * (1 + (cunning * 0.25)) * daily * staff;
+    fluffocus += 1;
+    return (50 + (curious * 30)) * Math.pow(1.015, (zone - (300-classy))) * (1 + (cunning * 0.25)) * daily * fluffocus * staff;
   }
 
   $('#reimport').on('click', function() {

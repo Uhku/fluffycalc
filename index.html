@@ -29,6 +29,8 @@
           <input type="text" id="daily" name="daily" value="1">
           <label for="staff">Staff modifier</label>
           <input type="text" id="staff" name="staff" value="1">
+          <label for="fluffocus">Fluffocus</label>
+          <input type="checkbox" id="fluffocus" value="0"><br>
           <input type="submit" value="Calculate!">
           <input type="button" value="Re-import values from save" id="reimport">
         </form>
@@ -36,6 +38,7 @@
       <div id="right">
         <div id="summary">
           <h3>Current stats</h3>
+          Current Evolution<span id="evolution"></span><br>
           Current Level<span id="level"></span><br>
           Current XP<span id="curxp"></span><br>
           XP per run<span id="xpperrun"></span><br>
