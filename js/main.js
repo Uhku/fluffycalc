@@ -119,9 +119,14 @@ $(document).ready(function() {
       var staff = parseFloat(all.heirlooms.Staff.FluffyExp.currentBonus/100);
       $('#staff').val(staff);
     }
+    if (!$('#classy').val().length) {
+      var classy = levels.Classy || 0;
+      $('#classy').val(classy);
+    }
     if (reset) {
       $('#cunning').val(levels.Cunning);
       $('#curious').val(levels.Curious);
+      $('#classy').val(levels.Classy);
       $('#staff').val(parseFloat(all.heirlooms.Staff.FluffyExp.currentBonus/100));
     }
   }
@@ -130,6 +135,7 @@ $(document).ready(function() {
     var cun = parseInt($('#cunning').val());
     var cur = parseInt($('#curious').val());
     var z = parseInt($('#zone').val());
+    var classy = parseInt($('#classy').val());
     var daily = parseFloat($('#daily').val()) || 1;
     var staff = parseFloat($('#staff').val()) || 1;
     if (z > 800) {
@@ -140,17 +146,18 @@ $(document).ready(function() {
     var xp = 0;
     var xparr = [];
     $('#result tbody').html('');
-    for (i = 301; i <= z; i++) {
-      xp = xpPerZone(cur, cun, i, daily, staff);
+    var start = 301-(classy*2);
+    for (i = start; i <= z; i++) {
+      xp = xpPerZone(cur, cun, i, daily, staff, classy);
       xparr.push(xp);
     }
     var xptolevel = Math.floor(fluffyxp[2]) - Math.floor(fluffyxp[1]);
-    var sum = xpPerRun(cur, cun, z, daily, staff);
+    var sum = xpPerRun(cur, cun, z, daily, staff, classy);
     var runs = Math.ceil(xptolevel/sum);
     $('#runs').text(runs);
     $('#xpperrun').text(prettify(sum.toFixed(0)));
     var htmlarr = xparr.map(function(row, index) {
-      var i = parseInt(index)+301;
+      var i = parseInt(index)+start;
       if (index > (xparr.length - 10)) {
         return '<tr><td>' + i + '</td><td>' + prettify(row) + '</td></tr>';
       } else {
@@ -164,17 +171,17 @@ $(document).ready(function() {
     }
   }
 
-  function xpPerRun(curious, cunning, zone, daily, staff) {
+  function xpPerRun(curious, cunning, zone, daily, staff, classy) {
     var run = [];
-    for (i = 301; i <= zone; i++) {
-      run.push(xpPerZone(curious, cunning, i, daily, staff));
+    for (i = classy; i <= zone; i++) {
+      run.push(xpPerZone(curious, cunning, i, daily, staff, classy));
     }
     return run.reduce(function (a, c) {
         return a + c;
     }, 0);
   }
 
-  function xpPerZone(curious, cunning, zone, daily, staff) {
+  function xpPerZone(curious, cunning, zone, daily, staff, classy) {
     if (!daily) {
       daily = 1;
     }
@@ -183,7 +190,13 @@ $(document).ready(function() {
     } else {
       staff = 1 + parseFloat(staff);
     }
-    return (50 + (curious * 30)) * Math.pow(1.015, (zone - 300)) * (1 + (cunning * 0.25)) * daily * staff;
+
+    if (!classy) {
+      classy = 1;
+    } else {
+      classy = classy*2;
+    }
+    return (50 + (curious * 30)) * Math.pow(1.015, (zone - (300-classy))) * (1 + (cunning * 0.25)) * daily * staff;
   }
 
   $('#reimport').on('click', function() {
@@ -260,7 +273,7 @@ $(document).ready(function() {
     }
     var zone = $('#zone').val();
     if (!zone) {
-      zone = 301;
+      zone = classy;
     }
     var daily = $('#daily').val() || 1;
     var staff = parseFloat($('#staff').val()) || 1;
