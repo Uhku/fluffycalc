@@ -96,7 +96,6 @@ $(document).ready(function() {
       $('#level').text(fluffyxp[0]);
       $('#curxp').text(prettify(fluffyxp[1]) + ' / ' + prettify(fluffyxp[2]));
       $('#evolution').text(levels.global.fluffyPrestige);
-      calcStats(levels);
       return [perks, levels];
     }
     else {
@@ -127,12 +126,28 @@ $(document).ready(function() {
     if (all.talents.fluffyExp.purchased) {
       $('#fluffocus').prop('checked', true);
     }
+    var spireMod = 1;
+    if (all.playerSpire) {
+      if (all.playerSpire.traps.Knowledge) {
+        var mod = 15;
+        if (all.playerSpire.traps.Knowledge.level > 1) {
+          mod += ((all.playerSpire.traps.Knowledge.level - 1) * 7.5);
+        }
+        if (mod > 15) {
+          spireMod = mod;
+        } else {
+          spireMod = mod * this.owned;
+        }
+        spireMod = (mod * all.playerSpire.traps.Knowledge.owned) / 100 + 1;
+      }
+    }
     var evo = all.global.fluffyPrestige;
     if (reset) {
       $('#cunning').val(levels.Cunning);
       $('#curious').val(levels.Curious);
       $('#classy').val(levels.Classy);
       $('#staff').val(parseFloat(all.heirlooms.Staff.FluffyExp.currentBonus/100));
+      $('#spire').val(spireMod);
       $('#evolution').text(evo);
     }
   }
@@ -145,6 +160,7 @@ $(document).ready(function() {
     var daily = parseFloat($('#daily').val()) || 1;
     var staff = parseFloat($('#staff').val()) || 1;
     var fluffocus = $('#fluffocus').prop('checked') ? parseFloat($('#evolution').text())/4 : 1;
+    var spire = parseFloat($('#spire').val());
     if (z > 800) {
       alert('Yeah right!');
       z = 301;
@@ -155,11 +171,11 @@ $(document).ready(function() {
     $('#result tbody').html('');
     var start = 301-(classy*2);
     for (i = start; i <= z; i++) {
-      xp = xpPerZone(cur, cun, i, daily, staff, classy, fluffocus);
+      xp = xpPerZone(cur, cun, i, daily, staff, classy, fluffocus, spire);
       xparr.push(xp);
     }
     var xptolevel = Math.floor(fluffyxp[2]) - Math.floor(fluffyxp[1]);
-    var sum = xpPerRun(cur, cun, z, daily, staff, classy, fluffocus);
+    var sum = xpPerRun(cur, cun, z, daily, staff, classy, fluffocus, spire);
     var runs = Math.ceil(xptolevel/sum);
     $('#runs').text(runs);
     $('#xpperrun').text(prettify(sum.toFixed(0)));
@@ -178,17 +194,17 @@ $(document).ready(function() {
     }
   }
 
-  function xpPerRun(curious, cunning, zone, daily, staff, classy, fluffocus) {
+  function xpPerRun(curious, cunning, zone, daily, staff, classy, fluffocus, spire) {
     var run = [];
     for (i = classy; i <= zone; i++) {
-      run.push(xpPerZone(curious, cunning, i, daily, staff, classy, fluffocus));
+      run.push(xpPerZone(curious, cunning, i, daily, staff, classy, fluffocus, spire));
     }
     return run.reduce(function (a, c) {
         return a + c;
     }, 0);
   }
 
-  function xpPerZone(curious, cunning, zone, daily, staff, classy, fluffocus) {
+  function xpPerZone(curious, cunning, zone, daily, staff, classy, fluffocus, spire) {
     if (!daily) {
       daily = 1;
     }
@@ -204,7 +220,7 @@ $(document).ready(function() {
       classy = classy*2;
     }
     fluffocus += 1;
-    return (50 + (curious * 30)) * Math.pow(1.015, (zone - (300-classy))) * (1 + (cunning * 0.25)) * daily * fluffocus * staff;
+    return (50 + (curious * 30)) * Math.pow(1.015, (zone - (300-classy))) * (1 + (cunning * 0.25)) * daily * fluffocus * staff * spire;
   }
 
   $('#reimport').on('click', function() {
@@ -231,77 +247,5 @@ $(document).ready(function() {
     e.preventDefault();
     $('.hidden').removeClass('hidden');
   });
-
-  function getCost(what, forceAmt){
-    var toCheck = perkConfig[what];
-    var tempLevel;
-    var nextLevel;
-    var toAmt;
-    tempLevel = 0;
-    nextLevel = tempLevel + forceAmt;
-    var amt = 0;
-    var growth = 1.3;
-    for (var x = 0; x < forceAmt; x++){
-      amt = Math.ceil(((tempLevel + x) / 2) + toCheck.priceBase * Math.pow(growth, tempLevel + x));
-    }
-    return amt;
-  }
-
-  function calcStats(save) {
-    var spendable = save.resources.helium.owned + save.global.heliumLeftover;
-    var curiousPoints = save.portal.Curious.level;
-    var cunningPoints = save.portal.Cunning.level;
-    var comboPoints = {
-      cunning: cunningPoints,
-      curious: curiousPoints
-    };
-
-    var cunningHe = spendable;
-    var cunningCost = getCost('Cunning', cunningPoints);
-    while (cunningHe > cunningCost) {
-      cunningPoints++;
-      cunningCost = getCost('Cunning', cunningPoints);
-      cunningHe -= cunningCost;
-    }
-
-    var curiousHe = spendable;
-    var curiousCost = getCost('Curious', curiousPoints);
-    while (curiousHe > curiousCost) {
-      curiousPoints++;
-      curiousCost = getCost('Curious', curiousPoints);
-      curiousHe -= curiousCost;
-    }
-
-    var comboHe = curiousHe;
-    comboPoints.curious = curiousPoints;
-    while (comboHe > cunningCost) {
-      comboPoints.cunning++;
-      cunningCost = getCost('Cunning', comboPoints.cunning);
-      comboHe -= cunningCost;
-    }
-    var zone = $('#zone').val();
-    if (!zone) {
-      zone = classy;
-    }
-    var daily = $('#daily').val() || 1;
-    var staff = parseFloat($('#staff').val()) || 1;
-    if (save.heirlooms.Staff.FluffyExp.currentBonus) {
-      staff = (save.heirlooms.Staff.FluffyExp.currentBonus/100);
-    }
-
-    var curRun = xpPerRun(curiousPoints, save.portal.Cunning.level, zone, daily, staff);
-    var cunRun = xpPerRun(save.portal.Curious.level, cunningPoints, zone, daily, staff);
-    var comboRun = xpPerRun(comboPoints.curious, comboPoints.cunning, zone, daily, staff);
-
-    $('#curplus').text(prettify(curRun));
-    $('#curamt').text('Curious only: ' + curiousPoints);
-
-    $('#cunplus').text(prettify(cunRun));
-    $('#cunamt').text('Cunning only: ' + cunningPoints);
-
-    $('#complus').text(prettify(comboRun));
-    $('#comcuramt').text('Curious: ' + comboPoints.curious);
-    $('#comcunamt').html('&nbsp;Cunning: ' + comboPoints.cunning);
-  }
 
 });
